@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Produtos</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header class="topo">
+      <h1>Cadastro de Produtos</h1>
+      <p>Preencha os dados para adicionar um item ao catálogo.</p>
+    </header>
+
+    <section class="conteudo">
+      <form id="form-produto" novalidate>
+        <div class="campo inteiro">
+          <label for="nome_do_produto">Nome do produto</label>
+          <input type="text" id="nome_do_produto" name="nome_do_produto" placeholder="Ex.: Teclado mecânico">
+          <small class="erro-campo" data-campo="nome_do_produto"></small>
+        </div>
+
+        <div class="campo inteiro">
+          <label for="categoria">Categoria</label>
+          <input type="text" id="categoria" name="categoria" placeholder="Ex.: Periféricos">
+          <small class="erro-campo" data-campo="categoria"></small>
+        </div>
+
+        <div class="campo">
+          <label for="preco">Preço (R$)</label>
+          <input type="text" inputmode="decimal" id="preco" name="preco" placeholder="0,00">
+          <small class="erro-campo" data-campo="preco"></small>
+        </div>
+
+        <div class="campo">
+          <label for="quantidade_de_estoque">Quantidade em estoque</label>
+          <input type="text" inputmode="numeric" id="quantidade_de_estoque" name="quantidade_de_estoque" placeholder="0">
+          <small class="erro-campo" data-campo="quantidade_de_estoque"></small>
+        </div>
+
+        <button type="submit">Cadastrar produto</button>
+      </form>
+
+      <a class="link" href="produtos.html">Listar todos os produtos →</a>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+  <script>iniciarCadastro();</script>
+</body>
+</html>

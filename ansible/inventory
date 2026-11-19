@@ -1,0 +1,13 @@
+# IPs atualizados automaticamente pelo setup.sh
+# (manual: substitua pelos valores de "cd iac && tofu output ips")
+[web]
+VM1-WEB ansible_host=192.168.122.182
+
+[api]
+VM2-API ansible_host=192.168.122.67
+
+[all:vars]
+ansible_user=aluno
+# Caminho da chave PRIVADA (par da chave publica usada no iac/main.tf)
+ansible_ssh_private_key_file=~/.ssh/devops_lab
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'

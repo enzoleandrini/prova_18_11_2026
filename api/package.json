@@ -1,0 +1,23 @@
+{
+  "name": "produtos-api",
+  "version": "1.0.0",
+  "description": "API REST de cadastro de produtos (Node.js + TypeScript + MySQL)",
+  "main": "dist/server.js",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.17.10",
+    "typescript": "^5.7.2"
+  }
+}

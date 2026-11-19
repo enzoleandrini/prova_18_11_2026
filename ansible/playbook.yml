@@ -1,0 +1,131 @@
+---
+- name: Preparar VMs (aguardar cloud-init e Docker)
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Aguardar conexao SSH
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+
+    - name: Aguardar o cloud-init terminar
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+
+    - name: Garantir Docker ativo
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+- name: Implantar API Node.js + MySQL na VM2-API
+  hosts: api
+  become: true
+
+  vars:
+    api_dir: /opt/api
+    mysql_database: produtos_db
+    mysql_user: produtos
+    mysql_password: produtos123
+    mysql_root_password: root123
+
+  tasks:
+    - name: Criar diretorio da API
+      ansible.builtin.file:
+        path: "{{ api_dir }}"
+        state: directory
+        owner: aluno
+        group: aluno
+        mode: "0755"
+
+    - name: Copiar arquivos da API
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../api/{{ item }}"
+        dest: "{{ api_dir }}/"
+        owner: aluno
+        group: aluno
+        mode: "0644"
+        directory_mode: "0755"
+      loop:
+        - Dockerfile
+        - docker-compose.yml
+        - package.json
+        - tsconfig.json
+        - init.sql
+        - .dockerignore
+        - src
+
+    - name: Gerar arquivo .env da API (CORS liberado para a VM1-WEB)
+      ansible.builtin.copy:
+        dest: "{{ api_dir }}/.env"
+        owner: aluno
+        group: aluno
+        mode: "0600"
+        content: |
+          CORS_ORIGIN=http://{{ hostvars['VM1-WEB'].ansible_host }}
+          MYSQL_DATABASE={{ mysql_database }}
+          MYSQL_USER={{ mysql_user }}
+          MYSQL_PASSWORD={{ mysql_password }}
+          MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
+
+    - name: Subir containers (API + MySQL)
+      ansible.builtin.command:
+        cmd: docker compose up -d --build
+        chdir: "{{ api_dir }}"
+      changed_when: true
+
+- name: Implantar aplicacao web na VM1-WEB
+  hosts: web
+  become: true
+
+  vars:
+    app_dir: /opt/app
+
+  tasks:
+    - name: Criar diretorio da aplicacao
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: aluno
+        group: aluno
+        mode: "0755"
+
+    - name: Copiar arquivos da aplicacao web
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../app/{{ item }}"
+        dest: "{{ app_dir }}/{{ item }}"
+        owner: aluno
+        group: aluno
+        mode: "0644"
+      loop:
+        - Dockerfile
+        - index.html
+        - produtos.html
+        - script.js
+        - style.css
+
+    - name: Gerar config.js com o endereco da API (VM2-API)
+      ansible.builtin.copy:
+        dest: "{{ app_dir }}/config.js"
+        owner: aluno
+        group: aluno
+        mode: "0644"
+        content: |
+          window.API_URL = "http://{{ hostvars['VM2-API'].ansible_host }}:3000";
+
+    - name: Construir imagem da aplicacao web
+      ansible.builtin.command:
+        cmd: docker build -t produtos-web .
+        chdir: "{{ app_dir }}"
+      changed_when: true
+
+    - name: Remover container antigo (se existir)
+      ansible.builtin.command: docker rm -f produtos-web
+      changed_when: false
+      failed_when: false
+
+    - name: Executar container da aplicacao web
+      ansible.builtin.command: >
+        docker run -d --name produtos-web --restart unless-stopped -p 80:80 produtos-web
+      changed_when: true

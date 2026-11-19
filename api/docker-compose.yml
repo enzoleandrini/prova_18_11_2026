@@ -1,0 +1,49 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-produtos_db}
+      MYSQL_USER: ${MYSQL_USER:-produtos}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-produtos123}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+    volumes:
+      - dados_mysql:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - rede_produtos
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root123}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  api:
+    build: .
+    image: produtos-api:local
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE:-produtos_db}
+      DB_USER: ${MYSQL_USER:-produtos}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-produtos123}
+    networks:
+      - rede_produtos
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  rede_produtos:
+    driver: bridge
+
+volumes:
+  dados_mysql:

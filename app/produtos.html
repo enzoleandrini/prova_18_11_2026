@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produtos Cadastrados</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header class="topo">
+      <h1>Produtos Cadastrados</h1>
+      <p>Registros persistidos no MySQL da VM2-API.</p>
+    </header>
+
+    <section class="conteudo">
+      <div class="tabela">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome do produto</th>
+              <th>Categoria</th>
+              <th>Preço</th>
+              <th>Estoque</th>
+            </tr>
+          </thead>
+          <tbody id="lista-produtos"></tbody>
+        </table>
+      </div>
+
+      <p id="mensagem"></p>
+
+      <a class="link" href="index.html">← Voltar para o cadastro</a>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+  <script>listarProdutos();</script>
+</body>
+</html>

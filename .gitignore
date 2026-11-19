@@ -1,0 +1,12 @@
+# OpenTofu
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Node
+node_modules/
+dist/
+
+# Segredos / gerados pelo Ansible
+.env
+app/config.js
